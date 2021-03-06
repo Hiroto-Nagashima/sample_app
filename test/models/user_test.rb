@@ -54,4 +54,17 @@ class UserTest < ActiveSupport::TestCase
     assert_not @user.valid?
   end
   
+  test "valid signup information" do
+    get signup_path
+    # このメソッドは第一引数に文字列（'User.count'）を取り、assert_differenceブロック内の処理を実行する直前と、実行した直後のUser.countの値を比較します。
+    assert_difference 'User.count', 1 do
+      post users_path, params: { user: { name:  "Example User",
+                                         email: "user@example.com",
+                                         password:              "password",
+                                         password_confirmation: "password" } }
+    end
+    # POSTリクエストを送信した結果を見て、指定されたリダイレクト先に移動するメソッド
+    follow_redirect!
+    assert_template 'users/show'
+  end
 end
