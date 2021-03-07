@@ -11,6 +11,10 @@ class ActiveSupport::TestCase
   # すべてのテストがアルファベット順に実行されるよう、
   #test/fixtures/*.ymlにあるすべてのfixtureをセットアップする
   fixtures :all
-
   # （すべてのテストで使うその他のヘルパーメソッドは省略）
+  
+  # テストユーザーがログイン中の場合にtrueを返す
+  def is_logged_in?
+    !session[:user_id].nil?
+  end
 end
