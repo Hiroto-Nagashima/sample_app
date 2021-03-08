@@ -8,6 +8,7 @@ class SessionsController < ApplicationController
     # ユーザーがデータベースにあり、かつ、認証に成功した場合にのみ
     if user && user.authenticate(params[:session][:password])
       # ユーザーログイン後にユーザー情報のページにリダイレクトする
+      params[:session][:remember_me] == '1' ? remember(user) : forget(user)
       log_in user
       redirect_to user
     else
@@ -18,7 +19,8 @@ class SessionsController < ApplicationController
   end
 
   def destroy
-    log_out
+    # 別ブラウザで同じくログアウトできないように
+    log_out if logged_in?
     redirect_to root_url
   end
   
