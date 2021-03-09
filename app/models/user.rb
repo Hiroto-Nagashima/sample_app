@@ -14,7 +14,8 @@ class User < ApplicationRecord
                     format: { with: VALID_EMAIL_REGEX },
                     uniqueness: true
   # レコード作成時にはpresence:trueがかかっているが、レコード更新時にはかからない。そのため別にここでバリデーションをかける。
-  validates :password, presence: true, length: { minimum: 6 }
+  # allow_nil: true パスワードのバリデーションに対して、空だったときの例外処理を加える
+  validates :password, presence: true, length: { minimum: 6 }, allow_nil: true
   has_secure_password
   # bcryptパスワード作成
   # 渡された文字列のハッシュ値を返す

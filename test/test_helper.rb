@@ -25,6 +25,7 @@ class ActiveSupport::TestCase
 end
 
 # 統合テストで扱うヘルパーなのでActionDispatch::IntegrationTestクラスの中で定義
+# 統合テストではsessionを直接取り扱うことができない
 class ActionDispatch::IntegrationTest
 
   # テストユーザーとしてログインする
