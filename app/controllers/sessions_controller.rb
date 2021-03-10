@@ -1,5 +1,6 @@
 class SessionsController < ApplicationController
   def new
+    
   end
   
   def create
@@ -10,7 +11,8 @@ class SessionsController < ApplicationController
       # ユーザーログイン後にユーザー情報のページにリダイレクトする
       params[:session][:remember_me] == '1' ? remember(user) : forget(user)
       log_in user
-      redirect_to user
+      # フレンドリーフォワーディングをするか、showページへ
+      redirect_back_or user
     else
       # レンダリングが終わっているページで特別にフラッシュメッセージを表示することができます
       flash.now[:danger] = 'Invalid email/password combination'
