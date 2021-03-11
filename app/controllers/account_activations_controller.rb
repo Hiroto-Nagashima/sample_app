@@ -4,6 +4,7 @@ class AccountActivationsController < ApplicationController
     # urlでemailを送ってきているのでここでキャッチ
     user = User.find_by(email: params[:email])
     # !user.activated?は、既に有効になっているユーザーを誤って再度有効化しないために必要です。
+    # 有効化トークンをparams[:id]として参照できます
     if user && !user.activated? && user.authenticated?(:activation, params[:id])
       user.activate
       log_in user

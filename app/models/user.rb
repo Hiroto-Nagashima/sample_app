@@ -1,7 +1,7 @@
 class User < ApplicationRecord
   # user.remember_tokenメソッドを使ってトークンにアクセスできるようにしたいがトークンをデータベースに保存したくない。
   # そのため仮想の属性を作る
-  attr_accessor :remember_token, :activation_token
+  attr_accessor :remember_token, :activation_token,:reset_token
   # データベース上で大文字小文字を区別させない方法は難しいので、保存する前に全部小文字にしちゃう
   before_save :downcase_email
   before_create :create_activation_digest
@@ -50,17 +50,6 @@ class User < ApplicationRecord
     update_attribute(:remember_digest, nil)
   end
   
-# メールアドレスをすべて小文字にする
-  def downcase_email
-    self.email = email.downcase
-  end
-
-  # 有効化トークンとダイジェストを作成および代入する
-  # ユーザーが作成される前に呼び出されるのでUser.newで新しいユーザーが定義されるとactivation_token属性やactivation_digest属性が得られるようになります。
-  def create_activation_digest
-    self.activation_token  = User.new_token
-    self.activation_digest = User.digest(activation_token)
-  end
   
   # トークンがダイジェストと一致したらtrueを返す
   # 他の認証でも使えるように、上では2番目の引数tokenの名前を変更して一般化
@@ -82,4 +71,35 @@ class User < ApplicationRecord
   def send_activation_email
     UserMailer.account_activation(self).deliver_now
   end
+  
+  # パスワード再設定の属性を設定する
+  def create_reset_digest
+    self.reset_token = User.new_token
+    update_attribute(:reset_digest,  User.digest(reset_token))
+    update_attribute(:reset_sent_at, Time.zone.now)
+  end
+
+  # パスワード再設定のメールを送信する
+  def send_password_reset_email
+    UserMailer.password_reset(self).deliver_now
+  end
+  
+  # パスワード再設定の期限が切れている場合はtrueを返す
+  def password_reset_expired?
+    # < 記号を「〜より早い時刻」と読んでください。
+    reset_sent_at < 2.hours.ago
+  end
+  
+  private
+    # メールアドレスをすべて小文字にする
+    def downcase_email
+      self.email = email.downcase
+    end
+  
+    # 有効化トークンとダイジェストを作成および代入する
+    # ユーザーが作成される前に呼び出されるのでUser.newで新しいユーザーが定義されるとactivation_token属性やactivation_digest属性が得られるようになります。
+    def create_activation_digest
+      self.activation_token  = User.new_token
+      self.activation_digest = User.digest(activation_token)
+    end
 end
