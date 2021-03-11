@@ -32,7 +32,11 @@ Rails.application.configure do
   config.active_storage.service = :local
 
   # Don't care if the mailer can't send.
+  # 電子メールが配信完了できない場合にエラーを発生させるかの設定
   config.action_mailer.raise_delivery_errors = false
+  # 16進数を表現する「0-9」「A-F」の組み合わせで表せられる文字列を、hexadecimal string、つまり、HEX Stringという
+  host = '<hex string>.vfs.cloud9.ap-northeast-1.amazonaws.com'     # クラウドIDE
+  config.action_mailer.default_url_options = { host: host, protocol: 'https' }
 
   config.action_mailer.perform_caching = false
 

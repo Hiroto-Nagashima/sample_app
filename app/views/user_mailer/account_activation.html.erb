@@ -1,0 +1,11 @@
+<h1>Sample App</h1>
+
+<p>Hi <%= @user.name %>,</p>
+
+<p>
+Welcome to the Sample App! Click on the link below to activate your account:
+</p>
+<!--Railsでクエリパラメータを設定するには、名前付きルートに対してemail: @user.emailのようなハッシュを追加します。-->
+<!--Railsサーバーでユーザーをメールアドレスで検索して有効化トークンを認証できるようにしたいので、リンクにはメールアドレスとトークンを両方含めておく必要があります。-->
+<%= link_to "Activate", edit_account_activation_url(@user.activation_token,
+                                                    email: @user.email) %>

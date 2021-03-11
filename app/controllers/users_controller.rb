@@ -18,11 +18,9 @@ class UsersController < ApplicationController
   def create
     @user = User.new(user_params)
     if @user.save
-      log_in @user
-      # 一度だけ表示されるメッセージ
-      flash[:success] = "Welcome to the Sample App!"
-      # redirect_to user_url(@user)と同じくusers/showに飛ぶ
-      redirect_to @user
+      @user.send_activation_email
+      flash[:info] = "Please check your email to activate your account."
+      redirect_to root_url
     else
       render 'new'
     end

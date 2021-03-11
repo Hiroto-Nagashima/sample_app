@@ -1,9 +1,10 @@
 class User < ApplicationRecord
   # user.remember_tokenメソッドを使ってトークンにアクセスできるようにしたいがトークンをデータベースに保存したくない。
   # そのため仮想の属性を作る
-  attr_accessor :remember_token
+  attr_accessor :remember_token, :activation_token
   # データベース上で大文字小文字を区別させない方法は難しいので、保存する前に全部小文字にしちゃう
-  before_save { self.email = email.downcase }
+  before_save :downcase_email
+  before_create :create_activation_digest
   validates :name,  presence: true, length: { maximum: 50 }
   # 正規表現（Regular Expression）
   VALID_EMAIL_REGEX = /\A[\w+\-.]+@[a-z\d\-]+(\.[a-z\d\-]+)*\.[a-z]+\z/i
@@ -47,5 +48,38 @@ class User < ApplicationRecord
   # ユーザーのログイン情報を破棄する
   def forget
     update_attribute(:remember_digest, nil)
+  end
+  
+# メールアドレスをすべて小文字にする
+  def downcase_email
+    self.email = email.downcase
+  end
+
+  # 有効化トークンとダイジェストを作成および代入する
+  # ユーザーが作成される前に呼び出されるのでUser.newで新しいユーザーが定義されるとactivation_token属性やactivation_digest属性が得られるようになります。
+  def create_activation_digest
+    self.activation_token  = User.new_token
+    self.activation_digest = User.digest(activation_token)
+  end
+  
+  # トークンがダイジェストと一致したらtrueを返す
+  # 他の認証でも使えるように、上では2番目の引数tokenの名前を変更して一般化
+  # selfは省略することもできます
+  # sendを使うとシンボルと文字列どちらを使った場合でも一定の値を送れる
+  def authenticated?(attribute, token)
+    digest = send("#{attribute}_digest")
+    return false if digest.nil?
+    BCrypt::Password.new(digest).is_password?(token)
+  end
+  # アカウントを有効にする
+  # selfはモデル内では必須ではない
+  def activate
+    # update_columnsは、モデルのコールバックやバリデーションが実行されない点がupdate_attributeと異なります
+    update_columns(activated: true, activated_at: Time.zone.now)
+  end
+
+  # 有効化用のメールを送信する
+  def send_activation_email
+    UserMailer.account_activation(self).deliver_now
   end
 end

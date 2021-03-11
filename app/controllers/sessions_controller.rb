@@ -8,13 +8,20 @@ class SessionsController < ApplicationController
     # Rubyではnilとfalse以外のすべてのオブジェクトは、真偽値ではtrueになる
     # ユーザーがデータベースにあり、かつ、認証に成功した場合にのみ
     if user && user.authenticate(params[:session][:password])
-      # ユーザーログイン後にユーザー情報のページにリダイレクトする
-      params[:session][:remember_me] == '1' ? remember(user) : forget(user)
-      log_in user
-      # フレンドリーフォワーディングをするか、showページへ
-      redirect_back_or user
+      if user.activated?
+        log_in user
+        # ユーザーログイン後にユーザー情報のページにリダイレクトする
+        params[:session][:remember_me] == '1' ? remember(user) : forget(user)
+        # フレンドリーフォワーディングをするか、showページへ
+        redirect_back_or user
+      else
+        message  = "Account not activated. "
+        message += "Check your email for the activation link."
+        flash[:warning] = message
+        redirect_to root_url
+      end
     else
-      # レンダリングが終わっているページで特別にフラッシュメッセージを表示することができます
+       # レンダリングが終わっているページで特別にフラッシュメッセージを表示することができます
       flash.now[:danger] = 'Invalid email/password combination'
       render 'new'
     end
