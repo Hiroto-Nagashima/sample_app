@@ -1,4 +1,5 @@
 class User < ApplicationRecord
+  has_many :microposts , dependent: :destroy
   # user.remember_tokenメソッドを使ってトークンにアクセスできるようにしたいがトークンをデータベースに保存したくない。
   # そのため仮想の属性を作る
   attr_accessor :remember_token, :activation_token,:reset_token
@@ -90,6 +91,11 @@ class User < ApplicationRecord
     reset_sent_at < 2.hours.ago
   end
   
+  def feed
+    # idがエスケープされるため、SQLインジェクションを避けることができます
+    # SQL文に変数を代入する場合は常にエスケープする習慣をぜひ身につけてください。
+    Micropost.where("user_id = ?", id)
+  end
   private
     # メールアドレスをすべて小文字にする
     def downcase_email
