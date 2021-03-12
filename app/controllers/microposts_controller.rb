@@ -5,6 +5,8 @@ class MicropostsController < ApplicationController
 
   def create
     @micropost = current_user.microposts.build(micropost_params)
+    # attachメソッドが、Micropostsコントローラのcreateアクションの中で、アップロードされた画像を@micropostオブジェクトにアタッチします。
+    @micropost.image.attach(params[:micropost][:image])
     if @micropost.save
       flash[:success] = "Micropost created!"
       redirect_to root_url
@@ -25,6 +27,9 @@ class MicropostsController < ApplicationController
   end
   
   private
+    def micropost_params
+      params.require(:micropost).permit(:content, :image)
+    end
 
     def micropost_params
       params.require(:micropost).permit(:content)
