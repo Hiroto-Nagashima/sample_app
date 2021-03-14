@@ -15,5 +15,9 @@ module SampleApp
     # Application configuration can go into files in config/initializers
     # -- all .rb files in that directory are automatically loaded after loading
     # the framework and any gems in your application.
+    
+     # 認証トークンをremoteフォームに埋め込む
+    # ブラウザ側でJavaScriptが無効になっていた場合（Ajaxリクエストが送れない場合）でもうまく動くようにします
+    config.action_view.embed_authenticity_token_in_remote_forms = true
   end
 end

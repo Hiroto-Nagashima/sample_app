@@ -15,5 +15,13 @@ Rails.application.routes.draw do
   resources :users
   resources :password_resets,     only: [:new, :create, :edit, :update]
   resources :microposts,          only: [:create, :destroy]
+  # /users/1/following や /users/1/followers のようなURLになる
+  resources :users do
+    member do
+      get :following, :followers
+    end
+  end
+  # フォローとアンフォロー
+  resources :relationships,       only: [:create, :destroy]
   # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
 end
